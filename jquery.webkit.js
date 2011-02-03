@@ -27,12 +27,18 @@
 
 (function($) {
 
-    $.fn.fadeIn = function(paramset)
+    $.fn.wkFadeIn = function(paramset)
     {                    
         var settings = $.extend({
             duration: 1.0,
-            timing_function: 'linear'
+            timing_function: 'linear',
+            callback: undefined
         }, paramset || {});
+        
+        if (settings.callback)
+            $(this).webkitTransitionEnd(settings.callback);
+
+        $(this).css('display', 'block');
         
         return this.each(function()
         {                                        
@@ -43,12 +49,25 @@
         });
     }
     
-    $.fn.fadeOut = function(paramset)
+    $.fn.wkFadeOut = function(paramset)
     {
         var settings = $.extend({
             duration: 1.0,
-            timing_function: 'linear'
+            timing_function: 'linear',
+            callback: undefined
         }, paramset || {});
+        
+        var item = this;
+        
+        $(this).webkitTransitionEnd(function()
+            {
+                console.log("fired");
+                console.log(item);
+                $(item).css('display', 'none');
+                if (settings.callback)
+                    settings.callback();
+            }
+        );
         
         return this.each(function()
         {            
@@ -61,7 +80,8 @@
     
     $.fn.webkitTransitionEnd = function(func)
     {
-        return this.bind('webkitTransitionEnd', func);
+        var item = this;
+        return this.bind('webkitTransitionEnd', function() { func(); item.unbind('webkitTransitionEnd');});
     }
     
     $.fn.reflectOn = function(paramset)
